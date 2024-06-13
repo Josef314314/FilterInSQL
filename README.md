@@ -3,81 +3,99 @@
 <h2>Scenario</h2>
 This scenario is based on a fictional company: <br/>
 <br/>
-I am a security professional at a large organization. Part of the job is to investigate security issues to help keep the system secure. I recently discovered some potential security issues that involve login attempts and employee machines. <br/>
+I am a security professional at a large organization. Part of the job is to investigate security issues to help keep the system secure. <br/>
 
 <h2>Project description</h2>
 
-The organization is working to make their system more secure. It is my job to ensure the system is safe, investigate all potential security issues, and update employee computers as needed. The following steps provide examples of how I used SQL with filters to perform security-related tasks.
+The job to ensure the system is safe, investigate all potential security issues, and update employee computers as needed. The following steps provide examples of how I used SQL with filters to perform security-related tasks.
 
 <h2>Environment</h2>
 
-- <b>Qwiklabs - Linux (Bash shell)</b>
+- <b>Qwiklabs - MariaDB shell</b>
 
 <h2>Task walk-through</h2>
 
-- <b>Check file and directory details:</b>
+- <b>Retrieve after hours failed login attempts:</b>
 
-I used the following Linux commands to determine the existing permissions set for a specific directory in the file system: <br/>
+There was a potential security incident that occurred after business hours (after 18:00). All after hours login attempts that failed need to be investigated. <br/>
+
+See the following snap that shows how I created a SQL query to filter for failed login attempts that occurred after business hours:
 <p align="center">
-<img src="https://i.imgur.com/4Bwwzo5.png" height="60%" width="60%" alt="LinuxComm"/>
-<br />
+<img src="https://i.imgur.com/qChQ3ui.png" height="60%" width="60%" alt="LinuxComm"/> <br/>
 <p align="left">
 
-The first line of the screenshot displays the command I entered, and the other lines display the output. The code lists all contents of the `projects` directory.
-I used the `ls` command with the `-la` option to display a detailed listing of the file contents that also returned hidden files.
-The output of my command indicates that there is one directory named `drafts`, one hidden file named `.project_x.txt`, and five other project files.
-The 10-character string in the first column represents the permissions set on each file or directory. <br />
-<br />
-<p align="left">
+The first part of the screenshot is my query, and the second part is a portion of the output. This query filters for failed login attempts after 18:00. <br/> 
+First, I started by selecting all data from the `log_in_attempts` table. Then, I used a `WHERE` clause with an `AND` operator to filter my results to output only login attempts that occurred after 18:00 and were unsuccessful. The first condition is `login_time > '18:00'`, which filters for the login attempts that occurred after 18:00. The second condition is `success = FALSE`, which filters for the failed login attempts.  <br />
+ <br />
   
-For example, the file permissions for `project_t.txt` are `-rw-rw-r--`. Since the first character is a hyphen `(-)`, this indicates that `project_t.txt` is a file, not a directory `(d)` like `drafts`. The second, fifth, and eighth characters are all `r`, which indicates that user, group, and other all have read permissions. The third and sixth characters are `w`, which indicates that only the user and group have write permissions. The fourth, seventh, and tenth characters are hyphens `(-)` instead of `(x)`, so no one has `execute` permissions.  <br/>
-<br />
-  
-- <b>Change file permissions:</b>
+- <b>Retrieve login attempts on specific dates:</b>
 
-The organization determined that other shouldn't have write access to any of their files. To solve this, I referred to the file permissions that I previously returned. I found out `project_k.txt` must have the write access removed for other. <br/>
+A suspicious event occurred on 2022-05-09. Any login activity that happened on that day or on the day before needs to be investigated. <br/>
 
-I used the following Linux commands to do this:<br/>
+The following code shows how I created a SQL query to filter for login attempts that occurred on specific dates:<br/>
 <p align="center">
-<img src="https://i.imgur.com/ErGJPEy.png" height="60%" width="60%" alt="LinuxComm"/>
-<br />
-
+<img src="https://i.imgur.com/iKkjbNP.png" height="60%" width="60%" alt="LinuxComm"/> <br/>
 <p align="left">
   
-I removed write permissions from other for the `project_k.txt` file. After this, I used `ls -la` to review the updates I made.
-The first two lines of the screenshot display the commands I entered, and the other lines display the output of the second command. The `chmod` command changes the permissions on files and directories. The first argument indicates what permissions should be changed, and the second argument specifies the file or directory. <br />
+As before, the first part of the screenshot is my query, and the second part is a portion of the output. This query returns all login attempts that occurred on 2022-05-09 or 2022-05-08. <br/>
+First, I started by selecting all data from the `log_in_attempts` table. Then, I used a `WHERE` clause with an `OR` operator to filter my results to output only login attempts that occurred on either 2022-05-09 or 2022-05-08. The first condition is `login_date = '2022-05-09'`, which filters for logins on 2022-05-09. The second condition is `login_date = '2022-05-08'`, which filters for logins on 2022-05-08. <br />
 <br />
 
-- <b>Change file permissions on a hidden file:</b>
+- <b>Retrieve login attempts outside of Mexico:</b>
 
-The research team recently archived `project_x.txt`. They do not want anyone to have write access to this project, but the user and group should have read access. <br/>
+After investigating the organization’s data on login attempts, I believe there is an issue with the login attempts that occurred outside of Mexico. These login attempts should be investigated. <br/>
 
-The following code demonstrates how I used Linux commands to change the permissions: <br/>
+So, I created the following SQL query to filter for login attempts that occurred outside of Mexico: <br/>
 <p align="center">
-<img src="https://i.imgur.com/pmQLaWm.png" height="60%" width="60%" alt="LinuxComm"/> <br/>
+<img src="https://i.imgur.com/ZkSFwo7.png" height="60%" width="60%" alt="LinuxComm"/> <br/>
 <p align="left">
   
-As before, the first two lines of the screenshot display the commands I entered, and the other lines display the output of the second command. <br />
-I know `.project_x.txt` is a hidden file because it starts with a period `(.)`. <br />
-I removed write permissions from the user with `u-w` and group `g-w`, and added read permissions to the group `g+r`. <br />
+This query returns all login attempts that occurred in countries other than Mexico. <br/>
+First, I started by selecting all data from the `log_in_attempts` table. Then, I used a `WHERE` clause with `NOT` to filter for countries other than Mexico. I used `LIKE` with `MEX%` as the pattern to match because the dataset represents Mexico as `MEX` and `MEXICO`. The percentage sign `(%)` represents any number of unspecified characters when used with `LIKE`.  <br />
 <br />
 
-- <b>Change directory permissions:</b>
+- <b>Retrieve employees in Marketing:</b>
 
-The organization only wants the `researcher2` user to have access to the `drafts` directory and its contents. In this case, I need to remove execute permissions from group. <br/>
+The team wants to update the computers for certain employees in the Marketing department. To do this, I have to get information on which employee machines to update. <br/>
 
-I used the following Linux commands to do so: <br/>
+I used the following SQL query to filter for employee machines from employees in the Marketing department in the East building: <br/>
 <p align="center">
-<img src="https://i.imgur.com/8hRKzBh.png" height="60%" width="60%" alt="LinuxComm"/> <br />
+<img src="https://i.imgur.com/I2BI1BL.png" height="60%" width="60%" alt="LinuxComm"/> <br />
 <p align="left">
   
-As previously, the first two lines of the screenshot display the commands I entered, and the other lines display the output of the second command. <br />
-Because the group had execute permissions, therefore I used the `chmod` command to remove them. The `researcher2` user already had execute permissions, so they did not need to be added. 
+This query returns all employees in the Marketing department in the East building. <br/>
+First, I started by selecting all data from the `employees` table. Then, I used a `WHERE` clause with `AND` to filter for employees who work in the Marketing department and in the East building. I used `LIKE` with `East%` as the pattern to match because the data in the `office` column represents the East building with the specific office number. The first condition is the `department = 'Marketing'` portion, which filters for employees in the Marketing department. The second condition is the `office LIKE 'East%'` portion, which filters for employees in the East building. <br/>
 <br />
+
+- <b>Retrieve employees in Finance or Sales:</b>
+
+The machines for employees in the Finance and Sales departments also need to be updated. Since a different security update is needed, I have to get information on employees only from these two departments. <br/>
+
+The following code demonstrates how I created a SQL query to filter for employee machines from employees in the Finance or Sales departments: <br/>
+<p align="center">
+<img src="https://i.imgur.com/7dxkvFE.png" height="60%" width="60%" alt="LinuxComm"/> <br />
+<p align="left">
+  
+This query returns all employees in the Finance and Sales departments. <br/>
+First, I started by selecting all data from the `employees` table. Then, I used a `WHERE` clause with `OR` to filter for employees who are in the Finance and Sales departments. I used the `OR` operator instead of `AND` because I want all employees who are in either department. The first condition is `department = 'Finance'`, which filters for employees from the Finance department. <br/>
+The second condition is `department = 'Sales'`, which filters for employees from the Sales department. <br/>
+<br />
+
+- <b>Retrieve all employees not in IT:</b>
+
+I need to make one more security update on employees who are not in the Information Technology department. To make the update, I first have to get information on these employees. <br/>
+
+I used the following SQL query to filter for employee machines from employees not in the  Information Technology department: <br/>
+<p align="center">
+<img src="https://i.imgur.com/FNKGoGH.png" height="60%" width="60%" alt="LinuxComm"/> <br />
+<p align="left">
+  
+This query returns all employees not in the Information Technology department. <br/>
+First, I started by selecting all data from the `employees` table. Then, I used a `WHERE` clause with `NOT` to filter for employees not in this department. <br/>
 <br />
 
 <h2>Summary</h2>
 
-I changed multiple permissions to match the level of authorization the organization wanted for files and directories in the `projects` directory. The first step in this was using `ls -la` to check the permissions for the directory. This informed my decisions in the following steps. I then used the `chmod` command multiple times to change the permissions on files and directories.  <br/>
+I applied filters to SQL queries to get specific information on login attempts and employee machines. I used two different tables, `log_in_attempts` and `employees`. I used the `AND`, `OR`, and `NOT` operators to filter for the specific information needed for each task. I also used `LIKE` and the percentage sign `(%)` wildcard to filter for patterns.  <br/>
 
 </p>
